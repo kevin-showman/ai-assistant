@@ -1,4 +1,4 @@
-import AssistantPage from "./pages/chat_pages";
+import AssistantPage from "./pages/assistant";
 
 export default function Home() {
   return (

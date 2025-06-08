@@ -46,7 +46,7 @@ export default function AssistantPage() {
           </h1>
           <div className="flex items-center gap-4">
             <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Probar</button>
-            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">K</div>
+            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">U</div>
           </div>
         </div>
 
@@ -60,38 +60,48 @@ export default function AssistantPage() {
             </p>
           </div>
 
-          <div className="mt-6 space-y-4 max-w-2xl">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`p-4 rounded-lg w-fit max-w-full ${msg.sender === "Tú" ? "bg-[#3C4043] self-end" : "bg-[#2D2F31]"}`}
-              >
-                <p className="text-sm"><strong>{msg.sender}:</strong> {msg.text}</p>
+          {/* Mensajes del chat */}
+          <div className="left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
+            <div className="flex flex-col w-full max-w-2xl mx-auto">
+              <div className="flex flex-col items-center gap-2 p-4">
+                {messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-lg w-fit max-w-full ${msg.sender === "Tú"
+                        ? "bg-[#3C4043] self-end"
+                        : "bg-[#2D2F31] self-start"
+                      }`}
+                  >
+                    <p className="text-sm">
+                      <strong>{msg.sender}:</strong> {msg.text}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+          </div>
 
-        {/* Chat input fixed at the bottom */}
-        <div className="absolute bottom-0 left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
-          <div className="flex flex-col w-full max-w-2xl mx-auto">
-            <div className="flex items-center gap-2 p-4 rounded-lg bg-[#202124] border border-[#3C4043]">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Pregunta a Uva"
-                className="bg-transparent flex-1 outline-none text-white placeholder:text-[#BDC1C6]"
-              />
-              <button onClick={handleSend} className="text-xl">📨</button>
-            </div>
-            <div className="flex gap-2 mt-2">
-              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Deep Research</button>
-              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button>
+          {/* Chat input fijo abajo */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
+            <div className="flex flex-col w-full max-w-2xl mx-auto">
+              <div className="flex items-center gap-2 p-4 rounded-lg bg-[#202124] border border-[#3C4043]">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  placeholder="Pregunta a Uva"
+                  className="bg-transparent flex-1 outline-none text-white placeholder:text-[#BDC1C6]"
+                />
+                <button onClick={handleSend} className="text-xl">📨</button>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Deep Research</button>
+                <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button>
+              </div>
             </div>
           </div>
-        </div>
       </main>
     </div>
   );
