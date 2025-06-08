@@ -1,4 +1,4 @@
-import AssistantPage from "./pages/assistant";
+import AssistantPage from "./assistant/page";
 
 export default function Home() {
   return (
