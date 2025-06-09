@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "next": "15.3.3",
-    "playfab-web-sdk": "^1.192.250526",
+    "playfab-sdk": "^2.174.250526",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

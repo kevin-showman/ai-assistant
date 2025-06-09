@@ -1,5 +1,6 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState([
@@ -22,6 +23,12 @@ export default function AssistantPage() {
     setMessages((prev) => [...prev, newMessage, response]);
     setInput("");
   };
+
+  const router = useRouter();
+  useEffect(() => {
+    const ticket = localStorage.getItem('playfabTicket');
+    if (!ticket) router.replace('/login');
+  }, []);
 
   return (
     <div className="flex h-screen text-white bg-[#1E1E1E] overflow-hidden">

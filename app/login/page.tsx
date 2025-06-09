@@ -2,13 +2,36 @@
 
 import { useState } from 'react';
 
+import { PlayFab, PlayFabClient } from 'playfab-sdk';
+
+if (!process.env.NEXT_PUBLIC_PLAYFAB_TITLE_ID) {
+  throw new Error("NEXT_PUBLIC_PLAYFAB_TITLE_ID is not defined");
+}
+
+PlayFab.settings.titleId = process.env.NEXT_PUBLIC_PLAYFAB_TITLE_ID;
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Correo: ${email}\nContraseña: ${password}`);
+    //alert(`Correo: ${email}\nContraseña: ${password}`);
+
+    const loginRequest = {
+      TitleId: PlayFab.settings.titleId,
+      Username: email,
+      Password: password,
+    };
+
+    PlayFabClient.LoginWithPlayFab(loginRequest, (error, result) => {
+      if (error) {
+        console.error("Fallo el login:", error);
+      } else {
+        console.log("Login exitoso:", result);
+      }
+    });
+
   };
 
   return (
@@ -21,7 +44,7 @@ export default function LoginPage() {
           <div>
             <label className="text-sm text-[#BDC1C6]">Correo electrónico</label>
             <input
-              type="email"
+              type="text"
               className="w-full mt-1 p-3 rounded-lg bg-[#2D2F31] border border-[#3C4043] text-white placeholder:text-[#BDC1C6] outline-none"
               placeholder="tucorreo@ejemplo.com"
               value={email}
