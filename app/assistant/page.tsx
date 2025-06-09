@@ -1,14 +1,27 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
+import { PlayFab, PlayFabClient } from 'playfab-sdk';
 
 export default function AssistantPage() {
+   const [username, setUsername] = useState('NO LOGGED');
+
+  PlayFabClient.GetAccountInfo(null ,(error, result) => {
+      if (error) {
+        console.error("Fallo:", error);
+      } else {
+        console.log(" exitoso:", result);
+        setUsername(result.data.AccountInfo?.TitleInfo?.DisplayName ?? "");
+      }
+    });
+  
   const [messages, setMessages] = useState([
     {
       sender: "Uva",
       text: "Hola, Kevin. ¿En qué puedo ayudarte hoy? 🤖"
     }
   ]);
+  
   const [input, setInput] = useState("");
 
   const handleSend = () => {
@@ -26,7 +39,8 @@ export default function AssistantPage() {
 
   const router = useRouter();
   useEffect(() => {
-    const ticket = localStorage.getItem('playfabTicket');
+    const ticket = sessionStorage.getItem('playfabTicket');
+    console.log("ticket:" , ticket)
     if (!ticket) router.replace('/login');
   }, []);
 
@@ -49,11 +63,11 @@ export default function AssistantPage() {
       <main className="flex-1 flex flex-col relative">
         <div className="flex justify-between items-center p-6">
           <h1 className="text-3xl font-semibold">
-            Hola, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">KEVIN DAVID</span>
+            Hola, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
           </h1>
           <div className="flex items-center gap-4">
             <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Probar</button>
-            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">U</div>
+            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">{username.charAt(0)}</div>
           </div>
         </div>
 

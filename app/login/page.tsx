@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { PlayFab, PlayFabClient } from 'playfab-sdk';
 
@@ -13,22 +14,48 @@ PlayFab.settings.titleId = process.env.NEXT_PUBLIC_PLAYFAB_TITLE_ID;
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     //alert(`Correo: ${email}\nContraseña: ${password}`);
 
     const loginRequest = {
-      TitleId: PlayFab.settings.titleId,
+      //TitleId: PlayFab.settings.titleId,
       Username: email,
       Password: password,
     };
 
-    PlayFabClient.LoginWithPlayFab(loginRequest, (error, result) => {
+    const loginRequestEmail = {
+      TitleId: PlayFab.settings.titleId,
+      Email: email,
+      Password: password,
+    };
+
+    const createUser = {
+      Username: 'uvalda',
+      DisplayName: 'uvalda asuncion',
+      Email: email,
+      Password: password,
+    }
+
+    // PlayFabClient.RegisterPlayFabUser(createUser, (error, result) => {
+    //   if (error) {
+    //     console.error("Fallo el registro:", error);
+    //   } else {
+    //     console.log("Registro exitoso:", result);
+    //   }
+    // });
+
+    PlayFabClient.LoginWithEmailAddress(loginRequestEmail, (error, result) => {
       if (error) {
         console.error("Fallo el login:", error);
       } else {
         console.log("Login exitoso:", result);
+        if(result.data.SessionTicket) 
+          sessionStorage.setItem('playfabTicket', result.data.SessionTicket);
+
+        router.replace('/assistant');
       }
     });
 
