@@ -27,13 +27,6 @@ export default function LoginPage() {
       Password: password,
     };
 
-    const createUser = {
-      Username: 'uvalda',
-      DisplayName: 'uvalda asuncion',
-      Email: email,
-      Password: password,
-    }
-
     // PlayFabClient.RegisterPlayFabUser(createUser, (error, result) => {
     //   if (error) {
     //     console.error("Fallo el registro:", error);
