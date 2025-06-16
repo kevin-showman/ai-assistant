@@ -4,43 +4,70 @@ import { useRouter } from 'next/navigation';
 import { PlayFab, PlayFabClient } from 'playfab-sdk';
 
 export default function AssistantPage() {
-   const [username, setUsername] = useState('NO LOGGED');
+  const [username, setUsername] = useState('NO LOGGED');
 
-  PlayFabClient.GetAccountInfo(null ,(error, result) => {
-      if (error) {
-        console.error("Fallo:", error);
-      } else {
-        console.log(" exitoso:", result);
-        setUsername(result.data.AccountInfo?.TitleInfo?.DisplayName ?? "");
-      }
-    });
-  
+  PlayFabClient.GetAccountInfo(null, (error, result) => {
+    if (error) {
+      console.error("Fallo:", error);
+    } else {
+      console.log(" exitoso:", result);
+      setUsername(result.data.AccountInfo?.TitleInfo?.DisplayName ?? "");
+    }
+  });
+
   const [messages, setMessages] = useState([
     {
       sender: "Uva",
       text: "Hola, Kevin. ¿En qué puedo ayudarte hoy? 🤖"
     }
   ]);
-  
+
   const [input, setInput] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const newMessage = { sender: "Tú", text: input };
-    const response = {
-      sender: "Uva",
-      text: "Esta es una respuesta simulada de Uva."
-    };
+    try {
+      const res = await fetch(
+        "https://datasetperu.cognitiveservices.azure.com/language/:query-knowledgebases?projectName=NayraUSA&api-version=2021-10-01&deploymentName=production",
+        {
+          method: "POST",
+          headers: {
+            "Ocp-Apim-Subscription-Key": "9ARny4IYbVm3drJBuwZa60A9VGSoAzk6NIPJQsWNDStvaZ02m927JQQJ99BEACLArgHXJ3w3AAAaACOGZezL",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            top: 1,
+            question: input,
+            includeUnstructuredSources: true,
+            confidenceScoreThreshold: 0.3,
+            answerSpanRequest: {
+              enable: true,
+              topAnswersWithSpan: 1,
+              confidenceScoreThreshold: 0.3,
+            },
+          }),
+        });
 
-    setMessages((prev) => [...prev, newMessage, response]);
-    setInput("");
+      const data = await res.json();
+      const newMessage = { sender: "Tú", text: input };
+      const response = {
+        sender: "YouTask",
+        text: data.answers[0].answer
+      };
+
+      setMessages((prev) => [...prev, newMessage, response]);
+      setInput("");
+
+    } catch (ex) {
+      console.log("exception: ", ex)
+    }
   };
 
   const router = useRouter();
   useEffect(() => {
     const ticket = sessionStorage.getItem('playfabTicket');
-    console.log("ticket:" , ticket)
+    console.log("ticket:", ticket)
     if (!ticket) router.replace('/login');
   }, []);
 
@@ -89,8 +116,8 @@ export default function AssistantPage() {
                   <div
                     key={idx}
                     className={`p-4 rounded-lg w-fit max-w-full ${msg.sender === "Tú"
-                        ? "bg-[#3C4043] self-end"
-                        : "bg-[#2D2F31] self-start"
+                      ? "bg-[#3C4043] self-end"
+                      : "bg-[#2D2F31] self-start"
                       }`}
                   >
                     <p className="text-sm">
@@ -101,28 +128,28 @@ export default function AssistantPage() {
               </div>
             </div>
           </div>
-          </div>
+        </div>
 
-          {/* Chat input fijo abajo */}
-          <div className="absolute bottom-0 left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
-            <div className="flex flex-col w-full max-w-2xl mx-auto">
-              <div className="flex items-center gap-2 p-4 rounded-lg bg-[#202124] border border-[#3C4043]">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Pregunta a Uva"
-                  className="bg-transparent flex-1 outline-none text-white placeholder:text-[#BDC1C6]"
-                />
-                <button onClick={handleSend} className="text-xl">📨</button>
-              </div>
-              <div className="flex gap-2 mt-2">
-                <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Deep Research</button>
-                <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button>
-              </div>
+        {/* Chat input fijo abajo */}
+        <div className="absolute bottom-0 left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
+          <div className="flex flex-col w-full max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 p-4 rounded-lg bg-[#202124] border border-[#3C4043]">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Pregunta a Uva"
+                className="bg-transparent flex-1 outline-none text-white placeholder:text-[#BDC1C6]"
+              />
+              <button onClick={handleSend} className="text-xl">📨</button>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Deep Research</button>
+              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button>
             </div>
           </div>
+        </div>
       </main>
     </div>
   );
