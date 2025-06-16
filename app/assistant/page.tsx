@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
-import { PlayFab, PlayFabClient } from 'playfab-sdk';
+import { PlayFabClient } from 'playfab-sdk';
 
 export default function AssistantPage() {
   const [username, setUsername] = useState('NO LOGGED');

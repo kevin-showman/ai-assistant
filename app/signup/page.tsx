@@ -20,18 +20,6 @@ export default function SignUpPage() {
     e.preventDefault();
     //alert(`Correo: ${email}\nContraseña: ${password}`);
 
-    const loginRequest = {
-      //TitleId: PlayFab.settings.titleId,
-      Username: email,
-      Password: password,
-    };
-
-    const loginRequestEmail = {
-      TitleId: PlayFab.settings.titleId,
-      Email: email,
-      Password: password,
-    };
-
     const createUser = {
       Username: 'uvalda',
       DisplayName: 'uvalda asuncion',
@@ -47,7 +35,7 @@ export default function SignUpPage() {
     //   }
     // });
 
-    PlayFabClient.RegisterPlayFabUser(loginRequestEmail, (error, result) => {
+    PlayFabClient.RegisterPlayFabUser(createUser, (error, result) => {
       if (error) {
         console.error("Sign up failed:", error);
       } else {
@@ -94,11 +82,11 @@ export default function SignUpPage() {
             type="submit"
             className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-blue-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-opacity"
           >
-            Let's go
+            Lets go
           </button>
         </form>
         <p className="text-sm text-[#BDC1C6] mt-6 text-center">
-          Don't you have an account? <a href="#" className="underline">Sign up</a>
+          Dont you have an account? <a href="#" className="underline">Sign up</a>
         </p>
       </div>
     </div>

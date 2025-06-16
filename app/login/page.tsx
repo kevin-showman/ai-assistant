@@ -20,11 +20,6 @@ export default function LoginPage() {
     e.preventDefault();
     //alert(`Correo: ${email}\nContraseña: ${password}`);
 
-    const loginRequest = {
-      //TitleId: PlayFab.settings.titleId,
-      Username: email,
-      Password: password,
-    };
 
     const loginRequestEmail = {
       TitleId: PlayFab.settings.titleId,
