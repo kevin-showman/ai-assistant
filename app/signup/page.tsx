@@ -53,7 +53,7 @@ export default function SignUpPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#1E1E1E] text-white p-6">
       <div className="w-full max-w-md p-8 bg-[#202124] rounded-2xl shadow-lg border border-[#3C4043]">
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Sign up <span className="text-[#8AB4F8]">Uva</span>
+          Sign up <span className="text-[#8AB4F8]">Youtask</span>
         </h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

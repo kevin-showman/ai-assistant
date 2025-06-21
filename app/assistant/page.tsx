@@ -18,61 +18,67 @@ export default function AssistantPage() {
 
   const [messages, setMessages] = useState([
     {
-      sender: "Uva",
-      text: "Hola, Kevin. ¿En qué puedo ayudarte hoy? 🤖"
+      sender: "Youtask",
+      text: "Hola. ¿En qué puedo ayudarte hoy? 🤖"
     }
   ]);
 
   const [input, setInput] = useState("");
 
   function getEntity(type: string, entities: any[]) {
-  const found = entities?.find((e) => e.category === type);
-  return found?.text ?? null;
-}
+    const found = entities?.find((e) => e.category === type);
+    return found?.text ?? null;
+  }
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const endpoint = 'https://chatbot-language-ai.cognitiveservices.azure.com/language/:analyze-conversations?api-version=2024-11-15-preview';
     try {
-      const res = await fetch(
-        endpoint,
-        {
-          method: "POST",
-          headers: {
-            "Ocp-Apim-Subscription-Key": "BM0wbCnzCWdGnVzOUvRlFjU9C1p8MhlK83TDftuSkGSKSqaVlm8JJQQJ99BFACYeBjFXJ3w3AAAaACOGotwn",
-            "Apim-Request-Id": "4ffcac1c-b2fc-48ba-bd6d-b69d9942995a",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ "kind": "Conversation", "analysisInput": { "conversationItem": { "id": "1", "text": "I want to add a new habit: meditate every day", "modality": "text", "language": "en", "participantId": "user" } }, "parameters": { "projectName": "youtask", "verbose": true, "deploymentName": "youtaskv2", "stringIndexType": "TextElement_V8" } }),
-        });
+      const res = await fetch("https://chatbot-language-ai.cognitiveservices.azure.com/language/:analyze-conversations?api-version=2024-11-15-preview", {
+        method: "POST",
+        headers: {
+          "Ocp-Apim-Subscription-Key": "BM0wbCnzCWdGnVzOUvRlFjU9C1p8MhlK83TDftuSkGSKSqaVlm8JJQQJ99BFACYeBjFXJ3w3AAAaACOGotwn",
+          "Apim-Request-Id": "4ffcac1c-b2fc-48ba-bd6d-b69d9942995a",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ "kind": "Conversation", "analysisInput": { "conversationItem": { "id": "1", "text": input, "modality": "text", "language": "en", "participantId": "user" } }, "parameters": { "projectName": "youtask", "verbose": true, "deploymentName": "youtaskv2", "stringIndexType": "TextElement_V8" } })
+      });
 
       const data = await res.json();
-      console.log("Responde of Azure:", data);
-      const newMessage = { sender: "Tú", text: input };
-      
+      const topIntent = data.result.prediction.topIntent;
+      const entities = data.result.prediction.entities;
 
-      const prediction = data.result.prediction;
-      if (prediction.topIntent === "add_task") {
-        const taskName = getEntity("task_name", prediction.entities) ?? "una tarea";
-        const role = getEntity("role", prediction.entities) ?? "personal";
-        const fecha = getEntity("due_date", prediction.entities) ?? "sin fecha definida";
+      let respuesta = "";
 
-        setRespuesta(`Perfecto, voy a añadir la tarea "${taskName}" en tu rol "${role}" con fecha "${fecha}". ¿Es correcto?`);
+      switch (topIntent) {
+        case "say_hi":
+          respuesta = "¡Hola! ¿En qué puedo ayudarte hoy?";
+          break;
+
+        case "add_task":
+          const taskName = getEntity("task_name", entities) ?? "una tarea";
+          const role = getEntity("role", entities) ?? "personal";
+          const fecha = getEntity("due_date", entities) ?? "sin fecha definida";
+          respuesta = `Entendido. Añadiré la tarea "${taskName}" bajo el rol "${role}", con fecha "${fecha}". ¿Es correcto?`;
+          break;
+
+        default:
+          respuesta = `Detecté la intención: ${topIntent}, pero no estoy seguro de qué deseas hacer.`;
       }
 
-      const response = {
-        sender: "YouTask",
-        text: respuesta
-      };
+      setMessages((prev) => [
+        ...prev,
+        { sender: "Tú", text: input },
+        { sender: "YouTask", text: respuesta }
+      ]);
 
-      setMessages((prev) => [...prev, newMessage, response]);
       setInput("");
 
     } catch (ex) {
-      console.log("exception: ", ex)
+      console.error("Error:", ex);
     }
   };
+
 
   const router = useRouter();
   useEffect(() => {
@@ -103,7 +109,7 @@ export default function AssistantPage() {
             Hola, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
           </h1>
           <div className="flex items-center gap-4">
-            <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Probar</button>
+            <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Perfil</button>
             <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">{username.charAt(0)}</div>
           </div>
         </div>
@@ -111,7 +117,7 @@ export default function AssistantPage() {
         <div className="flex-1 px-6 pb-40 overflow-y-auto">
           <div className="p-4 bg-[#2D2F31] rounded-lg max-w-2xl">
             <p className="text-sm">
-              <span className="text-white font-semibold">Damos la bienvenida a <span className="text-[#8AB4F8]">Uva</span></span>, tu asistente de IA personal
+              <span className="text-white font-semibold">Damos la bienvenida a <span className="text-[#8AB4F8]">Youtask</span></span>, tu asistente de IA personal
             </p>
             <p className="text-xs text-[#BDC1C6] mt-2">
               Se aplican los <a href="#" className="underline">Términos de Projective Staffing</a> y el <a href="#" className="underline">Aviso de Privacidad</a>. Las conversaciones se revisan para mejorar la IA de Projective Staffing...
@@ -149,14 +155,14 @@ export default function AssistantPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Pregunta a Uva"
+                placeholder="Pregunta a Youtask"
                 className="bg-transparent flex-1 outline-none text-white placeholder:text-[#BDC1C6]"
               />
               <button onClick={handleSend} className="text-xl">📨</button>
             </div>
             <div className="flex gap-2 mt-2">
-              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Deep Research</button>
-              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button>
+              <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Research</button>
+              {/* <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button> */}
             </div>
           </div>
         </div>
