@@ -7,6 +7,13 @@ export default function AssistantPage() {
   const [username, setUsername] = useState('NO LOGGED');
   const [taskRoles, setTaskRoles] = useState<Record<string, { task: string, date: string }[]>>({});
 
+  interface AzureEntity {
+    category: string;
+    text: string;
+    offset: number;
+    length: number;
+    confidenceScore: number;
+  }
 
   PlayFabClient.GetAccountInfo(null, (error, result) => {
     if (error) {
@@ -26,7 +33,7 @@ export default function AssistantPage() {
 
   const [input, setInput] = useState("");
 
-  function getEntity(type: string, entities: any[]) {
+  function getEntity(type: string, entities: AzureEntity[]) {
     const found = entities?.find((e) => e.category === type);
     return found?.text ?? null;
   }
