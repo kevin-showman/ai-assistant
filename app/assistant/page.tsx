@@ -5,6 +5,7 @@ import { PlayFabClient } from 'playfab-sdk';
 
 export default function AssistantPage() {
   const [username, setUsername] = useState('NO LOGGED');
+  const [respuesta, setRespuesta] = useState('');
 
   PlayFabClient.GetAccountInfo(null, (error, result) => {
     if (error) {
@@ -24,36 +25,45 @@ export default function AssistantPage() {
 
   const [input, setInput] = useState("");
 
+  function getEntity(type: string, entities: any[]) {
+  const found = entities?.find((e) => e.category === type);
+  return found?.text ?? null;
+}
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    const endpoint = 'https://chatbot-language-ai.cognitiveservices.azure.com/language/:analyze-conversations?api-version=2024-11-15-preview';
     try {
       const res = await fetch(
-        "https://datasetperu.cognitiveservices.azure.com/language/:query-knowledgebases?projectName=NayraUSA&api-version=2021-10-01&deploymentName=production",
+        endpoint,
         {
           method: "POST",
           headers: {
-            "Ocp-Apim-Subscription-Key": "9ARny4IYbVm3drJBuwZa60A9VGSoAzk6NIPJQsWNDStvaZ02m927JQQJ99BEACLArgHXJ3w3AAAaACOGZezL",
+            "Ocp-Apim-Subscription-Key": "BM0wbCnzCWdGnVzOUvRlFjU9C1p8MhlK83TDftuSkGSKSqaVlm8JJQQJ99BFACYeBjFXJ3w3AAAaACOGotwn",
+            "Apim-Request-Id": "4ffcac1c-b2fc-48ba-bd6d-b69d9942995a",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            top: 1,
-            question: input,
-            includeUnstructuredSources: true,
-            confidenceScoreThreshold: 0.3,
-            answerSpanRequest: {
-              enable: true,
-              topAnswersWithSpan: 1,
-              confidenceScoreThreshold: 0.3,
-            },
-          }),
+          body: JSON.stringify({ "kind": "Conversation", "analysisInput": { "conversationItem": { "id": "1", "text": "I want to add a new habit: meditate every day", "modality": "text", "language": "en", "participantId": "user" } }, "parameters": { "projectName": "youtask", "verbose": true, "deploymentName": "youtaskv2", "stringIndexType": "TextElement_V8" } }),
         });
 
       const data = await res.json();
+      console.log("Responde of Azure:", data);
       const newMessage = { sender: "Tú", text: input };
+      
+
+      const prediction = data.result.prediction;
+      if (prediction.topIntent === "add_task") {
+        const taskName = getEntity("task_name", prediction.entities) ?? "una tarea";
+        const role = getEntity("role", prediction.entities) ?? "personal";
+        const fecha = getEntity("due_date", prediction.entities) ?? "sin fecha definida";
+
+        setRespuesta(`Perfecto, voy a añadir la tarea "${taskName}" en tu rol "${role}" con fecha "${fecha}". ¿Es correcto?`);
+      }
+
       const response = {
         sender: "YouTask",
-        text: data.answers[0].answer
+        text: respuesta
       };
 
       setMessages((prev) => [...prev, newMessage, response]);
