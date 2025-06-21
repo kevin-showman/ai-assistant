@@ -5,7 +5,8 @@ import { PlayFabClient } from 'playfab-sdk';
 
 export default function AssistantPage() {
   const [username, setUsername] = useState('NO LOGGED');
-  const [respuesta, setRespuesta] = useState('');
+  const [taskRoles, setTaskRoles] = useState<Record<string, { task: string, date: string }[]>>({});
+
 
   PlayFabClient.GetAccountInfo(null, (error, result) => {
     if (error) {
@@ -59,6 +60,15 @@ export default function AssistantPage() {
           const taskName = getEntity("task_name", entities) ?? "una tarea";
           const role = getEntity("role", entities) ?? "personal";
           const fecha = getEntity("due_date", entities) ?? "sin fecha definida";
+
+          setTaskRoles(prev => {
+            const currentTasks = prev[role] ?? [];
+            return {
+              ...prev,
+              [role]: [...currentTasks, { task: taskName, date: fecha }]
+            };
+          });
+
           respuesta = `Entendido. Añadiré la tarea "${taskName}" bajo el rol "${role}", con fecha "${fecha}". ¿Es correcto?`;
           break;
 
@@ -90,17 +100,29 @@ export default function AssistantPage() {
   return (
     <div className="flex h-screen text-white bg-[#1E1E1E] overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#202124] flex flex-col p-4 border-r border-[#3C4043]">
-        <button className="flex items-center gap-2 p-2 rounded hover:bg-[#3C4043] text-sm">
-          <span>✏️</span> Nueva conversación
-        </button>
-        <button className="flex items-center gap-2 p-2 mt-2 rounded hover:bg-[#3C4043] text-sm">
-          <span>🔍</span> Descubrir Gems
-        </button>
+      <aside className="w-64 bg-[#202124] flex flex-col p-4 border-r border-[#3C4043] overflow-y-auto">
+
+        {/* NUEVO: Lista de Roles y Tareas */}
+        <div className="text-sm text-white space-y-2">
+          {Object.entries(taskRoles).map(([role, tasks], i) => (
+            <div key={i}>
+              <div className="font-semibold text-[#8AB4F8]">{i + 1}. {role}</div>
+              <ul className="ml-4 list-disc">
+                {tasks.map((t, j) => (
+                  <li key={j} className="text-xs text-[#BDC1C6]">
+                    {i + 1}.{j + 1} {t.task} <span className="text-[#5f6368]">({t.date})</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-auto border-t border-[#3C4043] pt-4">
           <button className="text-sm hover:underline">⚙️ Ajustes y ayuda</button>
         </div>
       </aside>
+
 
       {/* Main content */}
       <main className="flex-1 flex flex-col relative">
