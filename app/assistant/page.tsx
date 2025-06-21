@@ -3,37 +3,54 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { PlayFabClient } from 'playfab-sdk';
 
+interface AzureEntity {
+  category: string;
+  text: string;
+  offset: number;
+  length: number;
+  confidenceScore: number;
+}
+
+interface Message {
+  sender: string;
+  text: string;
+}
+
+interface TaskData {
+  task: string;
+  date: string;
+}
+
+type TaskRoles = Record<string, TaskData[]>;
+
 export default function AssistantPage() {
-  const [username, setUsername] = useState('NO LOGGED');
-  const [taskRoles, setTaskRoles] = useState<Record<string, { task: string, date: string }[]>>({});
-
-  interface AzureEntity {
-    category: string;
-    text: string;
-    offset: number;
-    length: number;
-    confidenceScore: number;
-  }
-
-  PlayFabClient.GetAccountInfo(null, (error, result) => {
-    if (error) {
-      console.error("Fallo:", error);
-    } else {
-      console.log(" exitoso:", result);
-      setUsername(result.data.AccountInfo?.TitleInfo?.DisplayName ?? "");
-    }
-  });
-
-  const [messages, setMessages] = useState([
+  const [username, setUsername] = useState<string>('NO LOGGED');
+  const [taskRoles, setTaskRoles] = useState<TaskRoles>({});
+  const [messages, setMessages] = useState<Message[]>([
     {
       sender: "Youtask",
       text: "Hola. ¿En qué puedo ayudarte hoy? 🤖"
     }
   ]);
+  const [input, setInput] = useState<string>("");
 
-  const [input, setInput] = useState("");
+  const router = useRouter();
 
-  function getEntity(type: string, entities: AzureEntity[]) {
+  useEffect(() => {
+    const ticket = sessionStorage.getItem('playfabTicket');
+    if (!ticket) router.replace('/login');
+
+    // ✅ Este llamado lo metemos en useEffect
+    PlayFabClient.GetAccountInfo(null, (error: any, result: any) => {
+      if (error) {
+        console.error("Fallo:", error);
+      } else {
+        setUsername(result.data?.AccountInfo?.TitleInfo?.DisplayName ?? "User");
+      }
+    });
+  }, [router]);
+
+  function getEntity(type: string, entities: AzureEntity[]): string | null {
     const found = entities?.find((e) => e.category === type);
     return found?.text ?? null;
   }
@@ -49,12 +66,29 @@ export default function AssistantPage() {
           "Apim-Request-Id": "4ffcac1c-b2fc-48ba-bd6d-b69d9942995a",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ "kind": "Conversation", "analysisInput": { "conversationItem": { "id": "1", "text": input, "modality": "text", "language": "en", "participantId": "user" } }, "parameters": { "projectName": "youtask", "verbose": true, "deploymentName": "youtaskv2", "stringIndexType": "TextElement_V8" } })
+        body: JSON.stringify({
+          kind: "Conversation",
+          analysisInput: {
+            conversationItem: {
+              id: "1",
+              text: input,
+              modality: "text",
+              language: "en",
+              participantId: "user"
+            }
+          },
+          parameters: {
+            projectName: "youtask",
+            verbose: true,
+            deploymentName: "youtaskv2",
+            stringIndexType: "TextElement_V8"
+          }
+        })
       });
 
       const data = await res.json();
-      const topIntent = data.result.prediction.topIntent;
-      const entities = data.result.prediction.entities;
+      const topIntent = data?.result?.prediction?.topIntent as string;
+      const entities = data?.result?.prediction?.entities as AzureEntity[];
 
       let respuesta = "";
 
@@ -83,32 +117,22 @@ export default function AssistantPage() {
           respuesta = `Detecté la intención: ${topIntent}, pero no estoy seguro de qué deseas hacer.`;
       }
 
-      setMessages((prev) => [
+      setMessages(prev => [
         ...prev,
         { sender: "Tú", text: input },
         { sender: "YouTask", text: respuesta }
       ]);
 
       setInput("");
-
     } catch (ex) {
       console.error("Error:", ex);
     }
   };
 
-
-  const router = useRouter();
-  useEffect(() => {
-    const ticket = sessionStorage.getItem('playfabTicket');
-    console.log("ticket:", ticket)
-    if (!ticket) router.replace('/login');
-  }, []);
-
   return (
     <div className="flex h-screen text-white bg-[#1E1E1E] overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-[#202124] flex flex-col p-4 border-r border-[#3C4043] overflow-y-auto">
-
         {/* NUEVO: Lista de Roles y Tareas */}
         <div className="text-sm text-white space-y-2">
           {Object.entries(taskRoles).map(([role, tasks], i) => (
@@ -130,7 +154,6 @@ export default function AssistantPage() {
         </div>
       </aside>
 
-
       {/* Main content */}
       <main className="flex-1 flex flex-col relative">
         <div className="flex justify-between items-center p-6">
@@ -143,17 +166,17 @@ export default function AssistantPage() {
           </div>
         </div>
 
+        {/* Mensajes */}
         <div className="flex-1 px-6 pb-40 overflow-y-auto">
           <div className="p-4 bg-[#2D2F31] rounded-lg max-w-2xl">
             <p className="text-sm">
               <span className="text-white font-semibold">Damos la bienvenida a <span className="text-[#8AB4F8]">Youtask</span></span>, tu asistente de IA personal
             </p>
             <p className="text-xs text-[#BDC1C6] mt-2">
-              Se aplican los <a href="#" className="underline">Términos de Projective Staffing</a> y el <a href="#" className="underline">Aviso de Privacidad</a>. Las conversaciones se revisan para mejorar la IA de Projective Staffing...
+              Se aplican los <a href="#" className="underline">Términos de Projective Staffing</a> y el <a href="#" className="underline">Aviso de Privacidad</a>.
             </p>
           </div>
 
-          {/* Mensajes del chat */}
           <div className="left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
             <div className="flex flex-col w-full max-w-2xl mx-auto">
               <div className="flex flex-col items-center gap-2 p-4">
@@ -175,7 +198,7 @@ export default function AssistantPage() {
           </div>
         </div>
 
-        {/* Chat input fijo abajo */}
+        {/* Chat input */}
         <div className="absolute bottom-0 left-0 right-0 bg-[#1E1E1E] p-6 border-t border-[#3C4043]">
           <div className="flex flex-col w-full max-w-2xl mx-auto">
             <div className="flex items-center gap-2 p-4 rounded-lg bg-[#202124] border border-[#3C4043]">
@@ -191,7 +214,6 @@ export default function AssistantPage() {
             </div>
             <div className="flex gap-2 mt-2">
               <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">➕ Research</button>
-              {/* <button className="flex items-center gap-1 text-xs px-3 py-1 bg-[#3C4043] rounded-full">🖼️ Canvas</button> */}
             </div>
           </div>
         </div>
