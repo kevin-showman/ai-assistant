@@ -41,7 +41,8 @@ export default function AssistantPage() {
     if (!ticket) router.replace('/login');
 
     // ✅ Este llamado lo metemos en useEffect
-    PlayFabClient.GetAccountInfo(null, (error: any, result: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    PlayFabClient.GetAccountInfo(null, (error, result) => {
       if (error) {
         console.error("Fallo:", error);
       } else {
