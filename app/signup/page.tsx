@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { PlayFab, PlayFabClient } from 'playfab-sdk';
+import Link from 'next/link';
 
 if (!process.env.NEXT_PUBLIC_PLAYFAB_TITLE_ID) {
   throw new Error("NEXT_PUBLIC_PLAYFAB_TITLE_ID is not defined");
@@ -21,8 +22,8 @@ export default function SignUpPage() {
     //alert(`Correo: ${email}\nContraseña: ${password}`);
 
     const createUser = {
-      Username: 'uvalda',
-      DisplayName: 'uvalda asuncion',
+      Username: email,
+      DisplayName: email,
       Email: email,
       Password: password,
     }
@@ -86,7 +87,7 @@ export default function SignUpPage() {
           </button>
         </form>
         <p className="text-sm text-[#BDC1C6] mt-6 text-center">
-          Dont you have an account? <a href="#" className="underline">Sign up</a>
+          Dont you have an account? <Link href="/login">login</Link>
         </p>
       </div>
     </div>

@@ -29,7 +29,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "Youtask",
-      text: "Hola. ¿En qué puedo ayudarte hoy? 🤖"
+      text: "Hi. How can help you? 🤖"
     }
   ]);
   const [input, setInput] = useState<string>("");
@@ -40,11 +40,10 @@ export default function AssistantPage() {
     const ticket = sessionStorage.getItem('playfabTicket');
     if (!ticket) router.replace('/login');
 
-    // ✅ Este llamado lo metemos en useEffect
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     PlayFabClient.GetAccountInfo(null, (error, result) => {
       if (error) {
-        console.error("Fallo:", error);
+        console.error("Failed:", error);
       } else {
         setUsername(result.data?.AccountInfo?.TitleInfo?.DisplayName ?? "User");
       }
@@ -95,13 +94,13 @@ export default function AssistantPage() {
 
       switch (topIntent) {
         case "say_hi":
-          respuesta = "¡Hola! ¿En qué puedo ayudarte hoy?";
+          respuesta = "Hi! How can I help you?";
           break;
 
         case "add_task":
-          const taskName = getEntity("task_name", entities) ?? "una tarea";
+          const taskName = getEntity("task_name", entities) ?? "a task";
           const role = getEntity("role", entities) ?? "personal";
-          const fecha = getEntity("due_date", entities) ?? "sin fecha definida";
+          const fecha = getEntity("due_date", entities) ?? "date undefined";
 
           setTaskRoles(prev => {
             const currentTasks = prev[role] ?? [];
@@ -111,16 +110,16 @@ export default function AssistantPage() {
             };
           });
 
-          respuesta = `Entendido. Añadiré la tarea "${taskName}" bajo el rol "${role}", con fecha "${fecha}". ¿Es correcto?`;
+          respuesta = `Done. I'll add "${taskName}" under the role "${role}", date "${fecha}". right?`;
           break;
 
         default:
-          respuesta = `Detecté la intención: ${topIntent}, pero no estoy seguro de qué deseas hacer.`;
+          respuesta = `I detected the intent: ${topIntent}, but I'm not sure what you want to do.`;
       }
 
       setMessages(prev => [
         ...prev,
-        { sender: "Tú", text: input },
+        { sender: "You", text: input },
         { sender: "YouTask", text: respuesta }
       ]);
 
@@ -151,7 +150,7 @@ export default function AssistantPage() {
         </div>
 
         <div className="mt-auto border-t border-[#3C4043] pt-4">
-          <button className="text-sm hover:underline">⚙️ Ajustes y ayuda</button>
+          <button className="text-sm hover:underline">⚙️ Settings</button>
         </div>
       </aside>
 
@@ -159,10 +158,10 @@ export default function AssistantPage() {
       <main className="flex-1 flex flex-col relative">
         <div className="flex justify-between items-center p-6">
           <h1 className="text-3xl font-semibold">
-            Hola, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
+            Hello, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
           </h1>
           <div className="flex items-center gap-4">
-            <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Perfil</button>
+            <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Profile</button>
             <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">{username.charAt(0)}</div>
           </div>
         </div>
@@ -171,10 +170,10 @@ export default function AssistantPage() {
         <div className="flex-1 px-6 pb-40 overflow-y-auto">
           <div className="p-4 bg-[#2D2F31] rounded-lg max-w-2xl">
             <p className="text-sm">
-              <span className="text-white font-semibold">Damos la bienvenida a <span className="text-[#8AB4F8]">Youtask</span></span>, tu asistente de IA personal
+              <span className="text-white font-semibold">Welcome to <span className="text-[#8AB4F8]">Youtask</span></span>, your AI assistant
             </p>
             <p className="text-xs text-[#BDC1C6] mt-2">
-              Se aplican los <a href="#" className="underline">Términos de Projective Staffing</a> y el <a href="#" className="underline">Aviso de Privacidad</a>.
+              The <a href="#" className="underline">Projective Staffing Terms</a> and <a href="#" className="underline">Privacity notice apply</a>.
             </p>
           </div>
 

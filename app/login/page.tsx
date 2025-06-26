@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { PlayFab, PlayFabClient } from 'playfab-sdk';
+import Link from 'next/link';
 
 if (!process.env.NEXT_PUBLIC_PLAYFAB_TITLE_ID) {
   throw new Error("NEXT_PUBLIC_PLAYFAB_TITLE_ID is not defined");
@@ -53,22 +54,22 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#1E1E1E] text-white p-6">
       <div className="w-full max-w-md p-8 bg-[#202124] rounded-2xl shadow-lg border border-[#3C4043]">
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Inicia sesión en <span className="text-[#8AB4F8]">Youtask</span>
+          Login <span className="text-[#8AB4F8]">Youtask</span>
         </h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-sm text-[#BDC1C6]">Correo electrónico</label>
+            <label className="text-sm text-[#BDC1C6]">email</label>
             <input
               type="text"
               className="w-full mt-1 p-3 rounded-lg bg-[#2D2F31] border border-[#3C4043] text-white placeholder:text-[#BDC1C6] outline-none"
-              placeholder="tucorreo@ejemplo.com"
+              placeholder="yourmail@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div>
-            <label className="text-sm text-[#BDC1C6]">Contraseña</label>
+            <label className="text-sm text-[#BDC1C6]">Password</label>
             <input
               type="password"
               className="w-full mt-1 p-3 rounded-lg bg-[#2D2F31] border border-[#3C4043] text-white placeholder:text-[#BDC1C6] outline-none"
@@ -82,11 +83,11 @@ export default function LoginPage() {
             type="submit"
             className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-blue-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-opacity"
           >
-            Iniciar sesión
+            Login
           </button>
         </form>
         <p className="text-sm text-[#BDC1C6] mt-6 text-center">
-          ¿No tienes cuenta? <a href="#" className="underline">Regístrate</a>
+          Do you have an account? <Link href="/signup">Sign Up</Link>
         </p>
       </div>
     </div>
