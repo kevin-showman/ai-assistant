@@ -302,7 +302,7 @@ const SidebarListItem: React.FC<SidebarListItemProps> = ({ id, name, icon: Icon,
 
 // Componente de la barra lateral
 const Sidebar: React.FC = () => {
-  const { state, addList, selectList } = useReminders();
+  const { state, addList } = useReminders();
   const categories = state.lists.filter(list => ['today', 'scheduled', 'all', 'flagged'].includes(list.id));
   const myLists = state.lists.filter(list => !['today', 'scheduled', 'all', 'flagged'].includes(list.id));
 
@@ -516,7 +516,7 @@ export default function App() {
         </div>
       </div>
       {/* Tailwind CSS CDN para que funcione en el entorno de vista previa */}
-      <script src="https://cdn.tailwindcss.com"></script>
+    
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
