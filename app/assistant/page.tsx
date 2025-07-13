@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { PlayFabClient } from 'playfab-sdk';
@@ -29,7 +29,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "Youtask",
-      text: "Hi. How can help you? 🤖"
+      text: "HI. How can help you? 🤖"
     }
   ]);
   const [input, setInput] = useState<string>("");
@@ -40,7 +40,6 @@ export default function AssistantPage() {
     const ticket = sessionStorage.getItem('playfabTicket');
     if (!ticket) router.replace('/login');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     PlayFabClient.GetAccountInfo(null, (error, result) => {
       if (error) {
         console.error("Failed:", error);
@@ -94,13 +93,13 @@ export default function AssistantPage() {
 
       switch (topIntent) {
         case "say_hi":
-          respuesta = "Hi! How can I help you?";
+          respuesta = "¡Hi! How can help you?";
           break;
 
-        case "add_task":
+        case "add_task": {
           const taskName = getEntity("task_name", entities) ?? "a task";
           const role = getEntity("role", entities) ?? "personal";
-          const fecha = getEntity("due_date", entities) ?? "date undefined";
+          const fecha = getEntity("due_date", entities) ?? "undefined date";
 
           setTaskRoles(prev => {
             const currentTasks = prev[role] ?? [];
@@ -110,11 +109,42 @@ export default function AssistantPage() {
             };
           });
 
-          respuesta = `Done. I'll add "${taskName}" under the role "${role}", date "${fecha}". right?`;
+          respuesta = `Sure. I'll add the task "${taskName}" under the role "${role}", date "${fecha}". right?`;
           break;
+        }
+
+        case "add_habit": {
+          const habitName = getEntity("habit_name", entities) ?? "new habit";
+          respuesta = `perfect. i see you want developt the habit of "${habitName}", i suggest:
+
+1. Define your objetive.
+2. Make it a daily routine.
+3. Use visual reminders or alarms.
+4. Start with small goals.
+5. Review your progress every week.
+
+Would you like suggestions for books or tools to help you with this?`;
+          break;
+        }
+
+        case "add_project": {
+          const projectName = getEntity("project_name", entities) ?? "a new project";
+          respuesta = `¡I got it! To carry out the project "${projectName}", 
+we could follow this plan:
+
+1. Define goals and features.
+2. Select technologies (e.g., Unity + Vuforia for augmented reality).
+3. Create wireframes or mockups.
+4. Define weekly milestones.
+5. Test with real devices.
+
+Do you want me to recommend specific frameworks or tools?`;
+          break;
+        }
 
         default:
-          respuesta = `I detected the intent: ${topIntent}, but I'm not sure what you want to do.`;
+          respuesta = `I detect the intent: ${topIntent}, 
+but I'm not sure what you want to do. Can you explain a little more?`;
       }
 
       setMessages(prev => [
@@ -133,7 +163,6 @@ export default function AssistantPage() {
     <div className="flex h-screen text-white bg-[#1E1E1E] overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-[#202124] flex flex-col p-4 border-r border-[#3C4043] overflow-y-auto">
-        {/* NUEVO: Lista de Roles y Tareas */}
         <div className="text-sm text-white space-y-2">
           {Object.entries(taskRoles).map(([role, tasks], i) => (
             <div key={i}>
@@ -158,7 +187,7 @@ export default function AssistantPage() {
       <main className="flex-1 flex flex-col relative">
         <div className="flex justify-between items-center p-6">
           <h1 className="text-3xl font-semibold">
-            Hello, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
+            Hola, <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">{username}</span>
           </h1>
           <div className="flex items-center gap-4">
             <button className="bg-[#3C4043] px-4 py-1 rounded-full text-sm">✨ Profile</button>
@@ -170,10 +199,10 @@ export default function AssistantPage() {
         <div className="flex-1 px-6 pb-40 overflow-y-auto">
           <div className="p-4 bg-[#2D2F31] rounded-lg max-w-2xl">
             <p className="text-sm">
-              <span className="text-white font-semibold">Welcome to <span className="text-[#8AB4F8]">Youtask</span></span>, your AI assistant
+              <span className="text-white font-semibold">Welcome to <span className="text-[#8AB4F8]">Youtask</span></span>, your AI assintant
             </p>
             <p className="text-xs text-[#BDC1C6] mt-2">
-              The <a href="#" className="underline">Projective Staffing Terms</a> and <a href="#" className="underline">Privacity notice apply</a>.
+              The <a href="#" className="underline">Projective Staffing terms</a> and <a href="#" className="underline">privacity notice </a>.
             </p>
           </div>
 
