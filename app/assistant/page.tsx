@@ -1,7 +1,6 @@
 'use client'
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
-// Contexto para el manejo del estado de los recordatorios y listas
 interface Reminder {
   id: string;
   text: string;
