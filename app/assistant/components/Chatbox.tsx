@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { AzureEntity } from '../_types/AzureEntity';
 import { Message } from '../_types/Message';
+import { useReminders } from '../_hook/useReminders';
 
 const getEntities = (category: string, entities: AzureEntity[]) => {
   return entities
@@ -23,6 +24,8 @@ const TEXT_ELEMENT = "TextElement_V8";
 const GREETINGS_02 = "¡Hi! How can help you?";
 
 const ChatBox: React.FC = () => {
+    const { state, addReminder, addList } = useReminders();
+    const [newReminderText, setNewReminderText] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: GREETING, sender: 'bot' },
   ]);
@@ -71,18 +74,25 @@ const ChatBox: React.FC = () => {
       const entities = data?.result?.prediction?.entities as AzureEntity[];
 
       let respuesta = "";
+      let taskName = "";
+      let relationships = "";
+      let role = "";
+      let fecha = "";
+
+      console.log(state, "state");
+
       switch (topIntent) {
         case "say_hi":
           respuesta = GREETINGS_02;
           break;
         case "add_task": {
-          const taskName = getEntities("task_name", entities).join(", ") ?? "a task";
-          const relationships = getEntities("relantionship", entities).join(", ") ?? "no relationships";
-          const role = getEntities("role", entities).join(", ") ?? "personal";
-          const fecha = getEntities("fecha", entities).join(", ") ?? "undefined date";
+          taskName = getEntities("task_name", entities).join(", ") ?? "a task";
+          relationships = getEntities("relantionship", entities).join(", ") ?? "no relationships";
+          role = getEntities("role", entities).join(", ") ?? "personal";
+          fecha = getEntities("fecha", entities).join(", ") ?? "undefined date";
           const responseRelationships = relationships === "no relationships" ? "" : ` and the relationships: ${relationships}`;
 
-          respuesta = `Sure. I'll add the task "${taskName}" under the role "${role}", date "${fecha}"${responseRelationships}. right?`;
+          respuesta = `Sure. I'll add the task "${taskName}" under the role "${role}", date "${fecha}"${responseRelationships}.`;
           break;
         }
         default:
@@ -92,6 +102,9 @@ but I'm not sure what you want to do. Can you explain a little more?`;
 
       const botMessage: Message = { id: Date.now() + 1, text: respuesta, sender: 'bot' };
       setMessages(prev => [...prev, botMessage]);
+
+      setNewReminderText(taskName);
+      addReminder(newReminderText, "family");
 
     } catch (ex) {
       console.error(AZURE_ERROR_02, ex);

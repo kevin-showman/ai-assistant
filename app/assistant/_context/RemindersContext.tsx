@@ -25,10 +25,6 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     const initialReminders: Reminder[] = [
       { id: '1', text: 'Comprar leche', isCompleted: false, listId: 'home', isFlagged: false },
-      { id: '2', text: 'Llamar a mamá', isCompleted: true, listId: 'family', isFlagged: false },
-      { id: '3', text: 'Estudiar Next.js', isCompleted: false, listId: 'home', isFlagged: true },
-      { id: '4', text: 'Pagar facturas', isCompleted: false, listId: 'today', isFlagged: false, dueDate: new Date().toISOString().split('T')[0] },
-      { id: '5', text: 'Reunión de equipo', isCompleted: false, listId: 'scheduled', isFlagged: false, dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0] }, // 2 días después
     ];
 
     // Calcular los contadores iniciales
