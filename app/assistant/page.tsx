@@ -2,15 +2,9 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Reminder } from './_types/Reminder';
 import { ReminderList } from './_types/ReminderList';
+import { AppState } from './_types/AppState';
 
 
-
-
-interface AppState {
-  lists: ReminderList[];
-  reminders: Reminder[];
-  selectedListId: string | null;
-}
 
 interface RemindersContextType {
   state: AppState;
