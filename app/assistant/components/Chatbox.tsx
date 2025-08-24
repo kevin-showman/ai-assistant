@@ -21,7 +21,6 @@ const PROJECT_NAME = "youtask";
 const DEPLOYMENT = "youtaskv3";
 const TEXT_ELEMENT = "TextElement_V8";
 const GREETINGS_02 = "¡Hi! How can help you?";
-const LANG = 'es-ES';
 
 const ChatBox: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
