@@ -1,15 +1,10 @@
 'use client'
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Reminder } from './_types/Reminder';
+import { ReminderList } from './_types/ReminderList';
 
 
-interface ReminderList {
-  id: string;
-  name: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>; // Para los iconos SVG
-  color: string;
-  count: number; // Para el contador de recordatorios
-}
+
 
 interface AppState {
   lists: ReminderList[];
