@@ -98,7 +98,7 @@ export const MainContent: React.FC = () => {
             onKeyDown={handleKeyDown}
           />
           <button className="text-blue-500 text-sm py-1 px-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
-            Add Date
+            Add DateX
           </button>
         </div>
         {incompleteReminders.map(reminder => (
