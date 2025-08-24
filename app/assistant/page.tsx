@@ -9,18 +9,7 @@ import { FlagIcon } from './_icons/FlagIcon';
 import { SearchIcon } from './_icons/SearchIcon';
 import { PlusIcon } from './_icons/Plus';
 import { InfoIcon } from './_icons/InfoIcon';
-
-
-
-interface RemindersContextType {
-  state: AppState;
-  addReminder: (text: string, listId: string, notes?: string, dueDate?: string) => void;
-  toggleReminderComplete: (reminderId: string) => void;
-  addList: (name: string, icon: React.FC<React.SVGProps<SVGSVGElement>>, color: string) => void;
-  selectList: (listId: string) => void;
-  updateReminderCount: (listId: string, count: number) => void;
-  // Puedes añadir más acciones aquí (eliminar, editar, etc.)
-}
+import { RemindersContextType } from './_types/RemindersContextType';
 
 const RemindersContext = createContext<RemindersContextType | undefined>(undefined);
 
