@@ -4,6 +4,11 @@ import { Reminder } from './_types/Reminder';
 import { ReminderList } from './_types/ReminderList';
 import { AppState } from './_types/AppState';
 import { CalendarIcon } from './_icons/CalendarIcon';
+import { ListIcon } from './_icons/ListIcon';
+import { FlagIcon } from './_icons/FlagIcon';
+import { SearchIcon } from './_icons/SearchIcon';
+import { PlusIcon } from './_icons/Plus';
+import { InfoIcon } from './_icons/InfoIcon';
 
 
 
@@ -18,48 +23,6 @@ interface RemindersContextType {
 }
 
 const RemindersContext = createContext<RemindersContextType | undefined>(undefined);
-
-
-
-const ListIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <line x1="8" y1="6" x2="21" y2="6"></line>
-    <line x1="8" y1="12" x2="21" y2="12"></line>
-    <line x1="8" y1="18" x2="21" y2="18"></line>
-    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-  </svg>
-);
-
-const FlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-    <line x1="4" y1="22" x2="4" y2="15"></line>
-  </svg>
-);
-
-const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-
-const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
-
-const InfoIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="16" x2="12" y2="12"></line>
-    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-  </svg>
-);
 
 // Proveedor de contexto
 export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
