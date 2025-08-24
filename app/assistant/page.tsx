@@ -1,15 +1,7 @@
 'use client'
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { Reminder } from './_types/Reminder';
 
-interface Reminder {
-  id: string;
-  text: string;
-  isCompleted: boolean;
-  dueDate?: string;
-  notes?: string;
-  listId: string;
-  isFlagged: boolean;
-}
 
 interface ReminderList {
   id: string;
