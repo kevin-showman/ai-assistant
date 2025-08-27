@@ -7,5 +7,9 @@ export interface RemindersContextType {
   addList: (name: string, icon: React.FC<React.SVGProps<SVGSVGElement>>, color: string) => void;
   selectList: (listId: string) => void;
   updateReminderCount: (listId: string, count: number) => void;
-  // Puedes añadir más acciones aquí (eliminar, editar, etc.)
+  addTaskWithRelationships: (
+  taskName: string,
+  relationships: string[],
+  fecha?: string
+) => void;
 }
