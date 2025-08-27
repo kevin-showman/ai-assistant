@@ -26,18 +26,22 @@ const TEXT_ELEMENT = "TextElement_V8";
 const GREETINGS_02 = "¡Hi! How can help you?";
 
 const ChatBox: React.FC = () => {
-    const { state, addReminder } = useReminders();
+    const { state, addTaskWithRelationships } = useReminders();
     const [newReminderText, setNewReminderText] = useState('');
     const [showCompleted, setShowCompleted] = useState(false);
 
-    // Obtener la lista seleccionada
-    const selectedList = state.lists.find(list => list.id === state.selectedListId);
-    const listName = selectedList ? selectedList.name : 'All';
+    //const selectedList = state.lists.find(list => list.id === state.selectedListId);
+    //const listName = selectedList ? selectedList.name : 'All';
 
-    // Filtrar recordatorios según la lista seleccionada
-    
+    const selectedList = state.lists.find(list => list.id === state.selectedListId);
+
     const filteredReminders = state.reminders.filter(reminder => {
-        if (state.selectedListId === 'all') return true;
+        if (state.selectedListId === 'all') {
+            return true;
+        }
+        if (selectedList?.parentId === 'family' && reminder.relationships) {
+            return reminder.relationships.includes(selectedList.name.toLowerCase());
+        }
         if (state.selectedListId === 'today') {
             const today = new Date().toISOString().split('T')[0];
             return reminder.dueDate === today;
@@ -49,6 +53,7 @@ const ChatBox: React.FC = () => {
         if (state.selectedListId === 'flagged') {
             return reminder.isFlagged;
         }
+        // Este es el filtro por defecto si las demás condiciones no se cumplen.
         return reminder.listId === state.selectedListId;
     });
 
@@ -116,11 +121,13 @@ const ChatBox: React.FC = () => {
                 case "add_task": {
                     taskName = getEntities("task_name", entities).join(", ") ?? "a task";
                     relationships = getEntities("relantionship", entities).join(", ") ?? "no relationships";
+                    const relationshipsArr = getEntities("relantionship", entities);
                     role = getEntities("role", entities).join(", ") ?? "personal";
                     fecha = getEntities("fecha", entities).join(", ") ?? "undefined date";
                     const responseRelationships = relationships === "no relationships" ? "" : ` and the relationships: ${relationships}`;
 
                     respuesta = `Sure. I'll add the task "${taskName}" under the role "${role}", date "${fecha}"${responseRelationships}.`;
+                    addTaskWithRelationships(taskName, relationshipsArr, fecha);
                     break;
                 }
                 default:
@@ -131,8 +138,8 @@ but I'm not sure what you want to do. Can you explain a little more?`;
             const botMessage: Message = { id: Date.now() + 1, text: respuesta, sender: 'bot' };
             setMessages(prev => [...prev, botMessage]);
 
-            setNewReminderText(taskName);
-            addReminder(newReminderText, "all");
+            //setNewReminderText(taskName);
+            //addReminder(newReminderText, "all");
 
         } catch (ex) {
             console.error(AZURE_ERROR_02, ex);
@@ -151,50 +158,51 @@ but I'm not sure what you want to do. Can you explain a little more?`;
 
     return (
         <>
-             {/* Encabezado */}
-            <h1 className="text-white text-xl font-bold">{listName}</h1>
-              {/* Sección de completados */}
-              {completedReminders.length > 0 && (
+            {/* Sección de completados */}
+            {completedReminders.length > 0 && (
                 <div className="mb-6">
-                  <div className="flex justify-between items-center text-gray-400 mb-2">
-                    <span className="text-sm">{completedReminders.length} Completed</span>
-                    <button
-                      className="text-blue-500 text-sm hover:underline"
-                      onClick={() => setShowCompleted(!showCompleted)}
-                    >
-                      {showCompleted ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                  {showCompleted && (
-                    <div className="bg-gray-800 rounded-lg p-2">
-                      {completedReminders.map(reminder => (
-                        <ReminderItem key={reminder.id} reminder={reminder} />
-                      ))}
+                    {/* Encabezado */}
+                    {/* <h1 className="text-white text-xl font-bold">{listName}</h1> */}
+                    <div className="flex justify-between items-center text-gray-400 mb-2">
+                        <span className="text-sm">{completedReminders.length} Completed</span>
+                        <button
+                            className="text-blue-500 text-sm hover:underline"
+                            onClick={() => setShowCompleted(!showCompleted)}
+                        >
+                            {showCompleted ? 'Hide' : 'Show'}
+                        </button>
                     </div>
-                  )}
+                    {showCompleted && (
+                        <div className="bg-gray-800 rounded-lg p-2">
+                            {completedReminders.map(reminder => (
+                                <ReminderItem key={reminder.id} reminder={reminder} />
+                            ))}
+                        </div>
+                    )}
                 </div>
-              )}
-        
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-            {/* Input para añadir nuevo recordatorio */}
-            <div className="flex items-center mb-4">
-                <PlusIcon className="h-5 w-5 text-gray-500 mr-3" />
-                <input
-                    type="text"
-                    placeholder="New Reminder"
-                    className="flex-1 bg-transparent text-white text-lg focus:outline-none placeholder-gray-500"
-                    value={newReminderText}
-                    onChange={(e) => setNewReminderText(e.target.value)}
-                    onKeyDown={handleKeyDown} />
-                <button className="text-blue-500 text-sm py-1 px-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
-                    Add DateX
-                </button>
+            )}
+
+                {/* <h1 className="text-white text-xl font-bold capitalize">{listName}</h1> */}
+            <div className="bg-gray-800 rounded-lg p-4 mb-6">
+                <div className="flex items-center mb-4">
+                    <PlusIcon className="h-5 w-5 text-gray-500 mr-3" />
+                    <input
+                        type="text"
+                        placeholder="New Reminder"
+                        className="flex-1 bg-transparent text-white text-lg focus:outline-none placeholder-gray-500"
+                        value={newReminderText}
+                        onChange={(e) => setNewReminderText(e.target.value)}
+                        onKeyDown={handleKeyDown} />
+                    <button className="text-blue-500 text-sm py-1 px-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
+                        +
+                    </button>
+                </div>
+                {incompleteReminders.map(reminder => (
+                    <ReminderItem key={reminder.id} reminder={reminder} />
+                ))}
             </div>
-            {incompleteReminders.map(reminder => (
-                <ReminderItem key={reminder.id} reminder={reminder} />
-            ))}
-        </div><div className="flex-1 bg-gray-900 p-8 h-screen overflow-y-auto rounded-r-xl flex flex-col">
-                <h1 className="text-white text-4xl font-bold mb-6">Chat AI</h1>
+            <div className="flex-1 bg-gray-900 p-8 h-screen overflow-y-auto rounded-r-xl flex flex-col">
+                <h1 className="text-white text-4xl font-bold mb-6">Youtask</h1>
 
                 <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-800 rounded-lg">
                     {messages.map(msg => (

@@ -6,4 +6,5 @@ export interface Reminder {
   notes?: string;
   listId: string;
   isFlagged: boolean;
+  relationships?: string[]; //
 }

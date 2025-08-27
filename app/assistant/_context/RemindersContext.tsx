@@ -44,6 +44,8 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
       return { ...list, count: initialReminders.filter(r => r.listId === list.id && !r.isCompleted).length };
     });
 
+
+
     return {
       lists: calculatedLists,
       reminders: initialReminders,
@@ -51,8 +53,6 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
   });
 
-
-  // Función para actualizar los contadores de las listas
   const updateReminderCounts = (currentReminders: Reminder[]) => {
     setState(prevState => {
       const updatedLists = prevState.lists.map(list => {
@@ -67,8 +67,14 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
           count = currentReminders.filter(r => r.dueDate && r.dueDate > today && !r.isCompleted).length;
         } else if (list.id === 'flagged') {
           count = currentReminders.filter(r => r.isFlagged && !r.isCompleted).length;
-        } else {
-          count = currentReminders.filter(r => r.listId === list.id && !r.isCompleted).length;
+        } else if (list.id === 'family') { // 👈🏽 Lógica para el contador de Family
+          const familyLists = prevState.lists.filter(l => l.parentId === 'family');
+          const familyReminders = currentReminders.filter(r => familyLists.some(fl => r.relationships?.includes(fl.name)));
+          count = familyReminders.length;
+        }
+        else {
+          // Lógica para listas individuales como 'aunt' y 'brother'
+          count = currentReminders.filter(r => r.relationships?.includes(list.name) && !r.isCompleted).length;
         }
         return { ...list, count };
       });
@@ -76,7 +82,6 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
     });
   };
 
-  // Efecto para recalcular los contadores cuando los recordatorios cambian
   useEffect(() => {
     updateReminderCounts(state.reminders);
   }, [state.reminders]);
@@ -137,6 +142,66 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
     }));
   };
 
+  const addTaskWithRelationships = (
+    taskName: string,
+    relationships: string[],
+    fecha?: string
+  ) => {
+    setState(prevState => {
+      const updatedLists = [...prevState.lists];
+      const updatedReminders = [...prevState.reminders];
+
+      // Buscar la lista 'family'
+      const familyList = updatedLists.find(list => list.id === 'family');
+      const defaultListId = familyList ? familyList.id : 'all';
+
+      const parent = relationships.length > 0 ? 'family' : 'home';
+
+      // Crear un solo recordatorio si no existe una tarea idéntica
+      const existingReminder = updatedReminders.find(r =>
+        r.text === taskName && r.listId === defaultListId
+      );
+
+      if (!existingReminder) {
+        const newReminder: Reminder = {
+          id: String(Date.now() + Math.random()),
+          text: taskName,
+          isCompleted: false,
+          listId: defaultListId,
+          dueDate: fecha || undefined,
+          isFlagged: false,
+          relationships: relationships,
+        };
+        updatedReminders.push(newReminder);
+      }
+
+      // Crear las sub-listas si no existen y asignarles el parentId
+      relationships.forEach(rel => {
+        const existingList = updatedLists.find(
+          list => list.name.toLowerCase() === rel.toLowerCase()
+        );
+        if (!existingList) {
+          const newList: ReminderList = {
+            id: String(Date.now() + Math.random()),
+            name: rel,
+            icon: ListIcon,
+            color: "text-green-400",
+            count: 0,
+            parentId: parent
+          };
+          updatedLists.push(newList);
+        }
+      });
+
+      return {
+        ...prevState,
+        lists: updatedLists,
+        reminders: updatedReminders
+      };
+    });
+  };
+
+
   return (
     <RemindersContext.Provider value={{
       state,
@@ -144,7 +209,8 @@ export const RemindersProvider: React.FC<{ children: ReactNode }> = ({ children 
       toggleReminderComplete,
       addList,
       selectList,
-      updateReminderCount
+      updateReminderCount,
+      addTaskWithRelationships
     }}>
       {children}
     </RemindersContext.Provider>
