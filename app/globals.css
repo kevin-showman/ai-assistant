@@ -76,3 +76,7 @@ body {
   input[type="checkbox"]:checked::before {
     transform: scale(1);
   }
+
+  .max-chatbox{
+    height: calc(2/3 * 100vh);
+  }
