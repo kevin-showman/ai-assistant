@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.3.3",
+    "@azure/identity": "^4.12.0",
+    "next": "^15.5.3",
+    "openai": "^5.20.2",
     "playfab-sdk": "^2.174.250526",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
