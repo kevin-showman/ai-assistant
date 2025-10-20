@@ -1,30 +1,30 @@
 'use client'
 import React, { useState } from 'react';
-import { AzureEntity } from '../_types/AzureEntity';
 import { Message } from '../_types/Message';
 import { useReminders } from '../_hook/useReminders';
 import { PlusIcon } from '../_icons/Plus';
 import { ReminderItem } from './ReminderItem';
-// Chatbox.tsx
 
 import {
     WRITING,
     GREETING,
     AZURE_ERROR_02,
     AZURE_ERROR_03,
-    KEY,
-    APIM,
-    PROJECT_NAME,
-    DEPLOYMENT,
-    TEXT_ELEMENT,
-    GREETINGS_02
 } from '../../_constants/chatbot.cons';
 
-const getEntities = (category: string, entities: AzureEntity[]) => {
-    return entities
-        .filter((e) => e.category === category)
-        .map((e) => e.text);
+
+type GPTResponse = {
+    response?: TaskResponse;
+    error?: string;
 };
+
+type TaskResponse = {
+    taskName: string[];
+    peopleInvolved: string[];
+    taskCategory: string[];
+    dateToPerform: string;
+    modelResponse: string;
+}
 
 const ChatBox: React.FC = () => {
     const { state, addTaskWithRelationships } = useReminders();
@@ -51,7 +51,6 @@ const ChatBox: React.FC = () => {
         if (state.selectedListId === 'flagged') {
             return reminder.isFlagged;
         }
-        // Este es el filtro por defecto si las demás condiciones no se cumplen.
         return reminder.listId === state.selectedListId;
     });
 
@@ -71,71 +70,22 @@ const ChatBox: React.FC = () => {
         setInputMessage('');
         setIsLoading(true);
 
-        const request = 'https://chatbot-language-ai.cognitiveservices.azure.com/' + process.env.NEXT_PUBLIC_LUIS;
+        const request = 'http://localhost:3002/openai/chat';
         try {
             const res = await fetch(request, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Ocp-Apim-Subscription-Key": KEY ?? "",
-                    "Apim-Request-Id": APIM ?? "",
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    kind: "Conversation",
-                    analysisInput: {
-                        conversationItem: {
-                            id: "1",
-                            text: messageToSend,
-                            modality: "text",
-                            language: "en",
-                            participantId: "user"
-                        }
-                    },
-                    parameters: {
-                        projectName: PROJECT_NAME,
-                        verbose: true,
-                        deploymentName: DEPLOYMENT,
-                        stringIndexType: TEXT_ELEMENT
-                    }
-                })
+                    prompt: messageToSend,
+                }),
             });
 
-            const data = await res.json();
-            const topIntent = data?.result?.prediction?.topIntent as string;
-            const entities = data?.result?.prediction?.entities as AzureEntity[];
-
-            let respuesta = "";
-            let taskName = "";
-            let relationships = "";
-            let role = "";
-            let fecha = "";
-
-            switch (topIntent) {
-                case "say_hi":
-                    respuesta = GREETINGS_02;
-                    break;
-                case "add_task": {
-                    taskName = getEntities("task_name", entities).join(", ") ?? "a task";
-                    relationships = getEntities("relantionship", entities).join(", ") ?? "no relationships";
-                    const relationshipsArr = getEntities("relantionship", entities);
-                    role = getEntities("role", entities).join(", ") ?? "personal";
-                    fecha = getEntities("fecha", entities).join(", ") ?? "undefined date";
-                    const responseRelationships = relationships === "no relationships" ? "" : ` and the relationships: ${relationships}`;
-
-                    respuesta = `Sure. I'll add the task "${taskName}" under the role "${role}", date "${fecha}"${responseRelationships}.`;
-                    addTaskWithRelationships(taskName, relationshipsArr, fecha);
-                    break;
-                }
-                default:
-                    respuesta = `I detect the intent: ${topIntent},
-but I'm not sure what you want to do. Can you explain a little more?`;
-            }
-
-            const botMessage: Message = { id: Date.now() + 1, text: respuesta, sender: 'bot' };
+            const data: GPTResponse = await res.json();
+            addTaskWithRelationships(data.response?.taskName[0] || '', data.response?.peopleInvolved || [], data.response?.dateToPerform);
+            const botMessage: Message = { id: Date.now() + 1, text: data.response?.modelResponse || '', sender: 'bot' };
             setMessages(prev => [...prev, botMessage]);
-
-            //setNewReminderText(taskName);
-            //addReminder(newReminderText, "all");
 
         } catch (ex) {
             console.error(AZURE_ERROR_02, ex);
@@ -200,7 +150,6 @@ but I'm not sure what you want to do. Can you explain a little more?`;
 
             {/* Sección del chatbot abajo */}
             <div className="bg-gray-900 p-8 flex flex-col justify-end border-t border-gray-700 max-chatbox">
-                {/* This div now has a fixed height, allowing the inner message container to scroll */}
                 <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-800 rounded-lg">
                     {messages.map(msg => (
                         <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
